@@ -196,14 +196,3 @@ async function sendWhatsAppMessage(ticketId) {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
-
-
-
-// TICKET_LABEL_ADDED
-
-// Param	Description
-// ticket_id	Ticket ID
-// label_id	Label ID
-// label_name	Label name
