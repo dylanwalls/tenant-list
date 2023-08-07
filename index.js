@@ -61,7 +61,7 @@ app.post('/webhook', async (req, res) => {
     console.log('API Response:', postData);
     console.log('Preferred Area: ', ticketData.preferredArea)
 
-    // const message_final = `${ticketData.firstName} ${ticketData.surname} is interested in renting in ${ticketData.preferredArea} from ${ticketData.preferredMoveIn}. Contact number: ${ticketData.contactNumber}. Their details are visible at Tenant Waiting List on Indlu too.` || 'New ticket received';
+    // NOLITHA
     if (ticketData.preferredArea === 'Eersterivier' || ticketData.preferredArea === 'Langa' || ticketData.preferredArea === 'Bongweni') {
       apiCallExecuted = false;
       sendMessageOptions = {
@@ -79,13 +79,13 @@ app.post('/webhook', async (req, res) => {
             { key: '{{4}}', value: ticketData.preferredArea},
             { key: '{{5}}', value: ticketData.preferredMoveIn}
           ],
-          // recipient_phone_number: '+27658632692', // Vunene's's number
-          recipient_phone_number: '+27784130968', // Dylan's number
+          recipient_phone_number: '+27721703241', // Nolitha's number
           hsm_id: '140117' // Replace with your WhatsApp template HSM ID
         })
       };
     }
 
+    // ZANDI
     else if (ticketData.preferredArea === 'iLitha Park' || ticketData.preferredArea === 'Blue Downs') {
       apiCallExecuted = false;
       sendMessageOptions = {
@@ -103,7 +103,7 @@ app.post('/webhook', async (req, res) => {
             { key: '{{4}}', value: ticketData.preferredArea},
             { key: '{{5}}', value: ticketData.preferredMoveIn}
           ],
-          recipient_phone_number: '++27798736273', // Bitprop's old number
+          recipient_phone_number: '+27785411797', // Zandi's number
           //   recipient_phone_number: '+27784130968', // Dylan's number
           hsm_id: '140117' // Replace with your WhatsApp template HSM ID
         })
@@ -111,7 +111,7 @@ app.post('/webhook', async (req, res) => {
     }
     // Remainder: 'iKwezi Park'
     else { 
-      const phoneNumbers = ['+27798736273', '+27784130968'];
+      const phoneNumbers = ['+27721703241', '+27785411797'];
       for (const phoneNumber of phoneNumbers) {
         console.log('PHONE NUMBER: ', phoneNumber);
         sendMessageOptions = {
