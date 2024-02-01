@@ -81,7 +81,7 @@ app.post('/webhook', async (req, res) => {
           ],
           recipient_phone_number: '+27721703241', // Nolitha's number
           // recipient_phone_number: '+27784130968',
-          hsm_id: '156745' // Replace with your WhatsApp template HSM ID
+          hsm_id: '156752' // Replace with your WhatsApp template HSM ID
         })
       };
     }
@@ -106,7 +106,7 @@ app.post('/webhook', async (req, res) => {
           ],
           recipient_phone_number: '+27785411797', // Zandi's number
           // recipient_phone_number: '+27784130968', // Dylan's number
-          hsm_id: '156745' // Replace with your WhatsApp template HSM ID
+          hsm_id: '156752' // Replace with your WhatsApp template HSM ID
         })
       };
     }
@@ -132,7 +132,7 @@ app.post('/webhook', async (req, res) => {
             ],
             // recipient_phone_number: '+27658632692', // Vunene's's number
             recipient_phone_number: phoneNumber,
-            hsm_id: '156745' // Replace with your WhatsApp template HSM ID
+            hsm_id: '156752' // Replace with your WhatsApp template HSM ID
           })
         };
 
