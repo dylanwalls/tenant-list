@@ -19,8 +19,8 @@ app.post('/webhook', async (req, res) => {
     console.log('REQ label: ', label_id);
 
     // Check if the ticket is labelled 'tenantWaitingList'
-    if (label_id !== '1662505') {
-      console.log('Ticket not labelled as tenantWaitingList. Skipping script.');
+    if (label_id !== '1662505' || label_id !== '1715942') {
+      console.log('Ticket not labelled as tenantWaitingList or incomingHomeownerApplication. Skipping script.');
       return res.json({ success: true, message: 'Ticket not labelled as tenantWaitingList. No action required.' });
     }
   } catch (error) {
@@ -28,93 +28,49 @@ app.post('/webhook', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error in webhook processing' });
   }
 
-  try {
-    const ticketData = await sendWhatsAppMessage(ticket_id);
-    const incidentDate = new Date().toISOString();
+  if (label_id === '1715942') {
+    // incomingHomeownerApplications
+    console.log('INCOMING HOMEOWNER APPLICATION FUNCTION INITIATED');
+  }
 
-    let sendMessageOptions;
+  else if (label_id === '1662505') {
 
-    const postMessageOptions = {
-      method: 'POST',
-      url: 'https://za-living-api-pub-01.indlu.co/public/api/external/workspace/endpoint/Submit',
-      headers: {
-        'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMTFkZjRkMDE2MjgzYTE1YjI4NDY3YjAyNGQzNDdkZjBkN2YyNWZmMjBkNzA0MmU1NDYyYTU1OTM0YjVlYjNlMmM5M2IyZmY4NDFmYWViNGMiLCJpYXQiOjE2ODgzOTYyMDIuMzI0NTI5LCJuYmYiOjE2ODgzOTYyMDIuMzI0NTMxLCJleHAiOjQ4MTI1MzM4MDIuMzE0MzY1LCJzdWIiOiI2MDY4NTQiLCJzY29wZXMiOltdfQ.MGKjhmw8mY-6tji1z4rsOG_9BTLTYasN6vgTNUjiFUeukAMz0sSTz4sFtifzV2L5Go4JIBooGYLeaKQfFIMHEA',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        'workspaceCode': 'TWL',
-        'recaptchaSiteKey': '70e0159d-7000-403b-a603-6a9ec2624f2e',
-        'payload': JSON.stringify({
-          'name': ticketData.firstName,
-          'surname': ticketData.surname,
-          'contactNumber': ticketData.contactNumber,
-          'preferredArea': ticketData.preferredArea,
-          'preferredMoveIn': ticketData.preferredMoveIn,
-          'date': incidentDate,
+    try {
+      const ticketData = await sendWhatsAppMessage(ticket_id);
+      const incidentDate = new Date().toISOString();
+
+      let sendMessageOptions;
+
+      const postMessageOptions = {
+        method: 'POST',
+        url: 'https://za-living-api-pub-01.indlu.co/public/api/external/workspace/endpoint/Submit',
+        headers: {
+          'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMTFkZjRkMDE2MjgzYTE1YjI4NDY3YjAyNGQzNDdkZjBkN2YyNWZmMjBkNzA0MmU1NDYyYTU1OTM0YjVlYjNlMmM5M2IyZmY4NDFmYWViNGMiLCJpYXQiOjE2ODgzOTYyMDIuMzI0NTI5LCJuYmYiOjE2ODgzOTYyMDIuMzI0NTMxLCJleHAiOjQ4MTI1MzM4MDIuMzE0MzY1LCJzdWIiOiI2MDY4NTQiLCJzY29wZXMiOltdfQ.MGKjhmw8mY-6tji1z4rsOG_9BTLTYasN6vgTNUjiFUeukAMz0sSTz4sFtifzV2L5Go4JIBooGYLeaKQfFIMHEA',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          'workspaceCode': 'TWL',
+          'recaptchaSiteKey': '70e0159d-7000-403b-a603-6a9ec2624f2e',
+          'payload': JSON.stringify({
+            'name': ticketData.firstName,
+            'surname': ticketData.surname,
+            'contactNumber': ticketData.contactNumber,
+            'preferredArea': ticketData.preferredArea,
+            'preferredMoveIn': ticketData.preferredMoveIn,
+            'date': incidentDate,
+          }),
         }),
-      }),
-    };
-
-    const postResponse = await fetch(postMessageOptions.url, postMessageOptions);
-    const postData = await postResponse.json();
-
-    console.log('API Response:', postData);
-    console.log('Preferred Area: ', ticketData.preferredArea)
-
-    // NOLITHA
-    if (ticketData.preferredArea === 'Eersterivier' || ticketData.preferredArea === 'Langa' || ticketData.preferredArea === 'Bongweni') {
-      apiCallExecuted = false;
-      sendMessageOptions = {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjdjZjk5YmM5ZGFlODQ2Zjg5MzA0YzBmYzRmMWI5NWYwMWE4MjRjMDVkZDAxY2M3ZDlkY2FlMDEzZTIxOWM4ZDVlNzE3OTNlYThmOTE4ZTciLCJpYXQiOjE3MDk1NTY3MzAuMjE4OTE4LCJuYmYiOjE3MDk1NTY3MzAuMjE4OTIsImV4cCI6NDgzMzYwNzkzMC4yMTA0MzQsInN1YiI6IjYwNjg1NCIsInNjb3BlcyI6W119.e72mA4u-ID81C85d1ajz-PKuPMvA8LgvnPayWI3y2DQZv4ya7K9iqYFUJalHImF0x6yeXzzkG9MCwAMLFR2zxg',
-          'accept': 'application/json',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          params: [
-            { key: '{{1}}', value: ticketData.firstName },
-            { key: '{{2}}', value: ticketData.surname},
-            { key: '{{3}}', value: ticketData.contactNumber},
-            { key: '{{4}}', value: ticketData.preferredArea},
-            { key: '{{5}}', value: ticketData.preferredMoveIn}
-          ],
-          recipient_phone_number: '+27721703241', // Nolitha's number
-          // recipient_phone_number: '+27784130968',
-          hsm_id: '156752' // Replace with your WhatsApp template HSM ID
-        })
       };
-    }
 
-    // ZANDI
-    else if (ticketData.preferredArea === 'iLitha Park' || ticketData.preferredArea === 'Blue Downs') {
-      apiCallExecuted = false;
-      sendMessageOptions = {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjdjZjk5YmM5ZGFlODQ2Zjg5MzA0YzBmYzRmMWI5NWYwMWE4MjRjMDVkZDAxY2M3ZDlkY2FlMDEzZTIxOWM4ZDVlNzE3OTNlYThmOTE4ZTciLCJpYXQiOjE3MDk1NTY3MzAuMjE4OTE4LCJuYmYiOjE3MDk1NTY3MzAuMjE4OTIsImV4cCI6NDgzMzYwNzkzMC4yMTA0MzQsInN1YiI6IjYwNjg1NCIsInNjb3BlcyI6W119.e72mA4u-ID81C85d1ajz-PKuPMvA8LgvnPayWI3y2DQZv4ya7K9iqYFUJalHImF0x6yeXzzkG9MCwAMLFR2zxg',
-          'accept': 'application/json',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          params: [
-            { key: '{{1}}', value: ticketData.firstName },
-            { key: '{{2}}', value: ticketData.surname},
-            { key: '{{3}}', value: ticketData.contactNumber},
-            { key: '{{4}}', value: ticketData.preferredArea},
-            { key: '{{5}}', value: ticketData.preferredMoveIn}
-          ],
-          recipient_phone_number: '+27785411797', // Zandi's number
-          // recipient_phone_number: '+27784130968', // Dylan's number
-          hsm_id: '156752' // Replace with your WhatsApp template HSM ID
-        })
-      };
-    }
-    // Remainder: 'iKwezi Park'
-    else { 
-      const phoneNumbers = ['+27721703241', '+27785411797'];
-      for (const phoneNumber of phoneNumbers) {
-        console.log('PHONE NUMBER: ', phoneNumber);
+      const postResponse = await fetch(postMessageOptions.url, postMessageOptions);
+      const postData = await postResponse.json();
+
+      console.log('API Response:', postData);
+      console.log('Preferred Area: ', ticketData.preferredArea)
+
+      // NOLITHA
+      if (ticketData.preferredArea === 'Eersterivier' || ticketData.preferredArea === 'Langa' || ticketData.preferredArea === 'Bongweni') {
+        apiCallExecuted = false;
         sendMessageOptions = {
           method: 'POST',
           headers: {
@@ -130,38 +86,90 @@ app.post('/webhook', async (req, res) => {
               { key: '{{4}}', value: ticketData.preferredArea},
               { key: '{{5}}', value: ticketData.preferredMoveIn}
             ],
-            // recipient_phone_number: '+27658632692', // Vunene's's number
-            recipient_phone_number: phoneNumber,
+            recipient_phone_number: '+27721703241', // Nolitha's number
+            // recipient_phone_number: '+27784130968',
             hsm_id: '156752' // Replace with your WhatsApp template HSM ID
           })
         };
+      }
 
+      // ZANDI
+      else if (ticketData.preferredArea === 'iLitha Park' || ticketData.preferredArea === 'Blue Downs') {
+        apiCallExecuted = false;
+        sendMessageOptions = {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjdjZjk5YmM5ZGFlODQ2Zjg5MzA0YzBmYzRmMWI5NWYwMWE4MjRjMDVkZDAxY2M3ZDlkY2FlMDEzZTIxOWM4ZDVlNzE3OTNlYThmOTE4ZTciLCJpYXQiOjE3MDk1NTY3MzAuMjE4OTE4LCJuYmYiOjE3MDk1NTY3MzAuMjE4OTIsImV4cCI6NDgzMzYwNzkzMC4yMTA0MzQsInN1YiI6IjYwNjg1NCIsInNjb3BlcyI6W119.e72mA4u-ID81C85d1ajz-PKuPMvA8LgvnPayWI3y2DQZv4ya7K9iqYFUJalHImF0x6yeXzzkG9MCwAMLFR2zxg',
+            'accept': 'application/json',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            params: [
+              { key: '{{1}}', value: ticketData.firstName },
+              { key: '{{2}}', value: ticketData.surname},
+              { key: '{{3}}', value: ticketData.contactNumber},
+              { key: '{{4}}', value: ticketData.preferredArea},
+              { key: '{{5}}', value: ticketData.preferredMoveIn}
+            ],
+            recipient_phone_number: '+27785411797', // Zandi's number
+            // recipient_phone_number: '+27784130968', // Dylan's number
+            hsm_id: '156752' // Replace with your WhatsApp template HSM ID
+          })
+        };
+      }
+      // Remainder: 'iKwezi Park'
+      else { 
+        const phoneNumbers = ['+27721703241', '+27785411797'];
+        for (const phoneNumber of phoneNumbers) {
+          console.log('PHONE NUMBER: ', phoneNumber);
+          sendMessageOptions = {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjdjZjk5YmM5ZGFlODQ2Zjg5MzA0YzBmYzRmMWI5NWYwMWE4MjRjMDVkZDAxY2M3ZDlkY2FlMDEzZTIxOWM4ZDVlNzE3OTNlYThmOTE4ZTciLCJpYXQiOjE3MDk1NTY3MzAuMjE4OTE4LCJuYmYiOjE3MDk1NTY3MzAuMjE4OTIsImV4cCI6NDgzMzYwNzkzMC4yMTA0MzQsInN1YiI6IjYwNjg1NCIsInNjb3BlcyI6W119.e72mA4u-ID81C85d1ajz-PKuPMvA8LgvnPayWI3y2DQZv4ya7K9iqYFUJalHImF0x6yeXzzkG9MCwAMLFR2zxg',
+              'accept': 'application/json',
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+              params: [
+                { key: '{{1}}', value: ticketData.firstName },
+                { key: '{{2}}', value: ticketData.surname},
+                { key: '{{3}}', value: ticketData.contactNumber},
+                { key: '{{4}}', value: ticketData.preferredArea},
+                { key: '{{5}}', value: ticketData.preferredMoveIn}
+              ],
+              // recipient_phone_number: '+27658632692', // Vunene's's number
+              recipient_phone_number: phoneNumber,
+              hsm_id: '156752' // Replace with your WhatsApp template HSM ID
+            })
+          };
+
+          try {
+            const sendResponse = await fetch('https://app.trengo.com/api/v2/wa_sessions', sendMessageOptions);
+            const sendData = await sendResponse.json();
+            console.log('API Response:', sendData);
+            apiCallExecuted = true;
+          } catch (error) {
+            console.error('failed to send WhatsApp message:', error);
+            return res.status(500).json({ success: false, message: 'Failed to send WhatsApp message' });
+          }
+        }
+      }
+      // Single API for if, else if
+      if (!apiCallExecuted) {
         try {
           const sendResponse = await fetch('https://app.trengo.com/api/v2/wa_sessions', sendMessageOptions);
           const sendData = await sendResponse.json();
           console.log('API Response:', sendData);
-          apiCallExecuted = true;
         } catch (error) {
-          console.error('failed to send WhatsApp message:', error);
+          console.error('Failed to send WhatsApp message:', error);
           return res.status(500).json({ success: false, message: 'Failed to send WhatsApp message' });
         }
+        return res.json({ success: true, message: 'WhatsApp message sent successfully', ticket: req.body });
       }
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+      return res.status(500).json({ success: false, message: 'Error in webhook processing' });
     }
-    // Single API for if, else if
-    if (!apiCallExecuted) {
-      try {
-        const sendResponse = await fetch('https://app.trengo.com/api/v2/wa_sessions', sendMessageOptions);
-        const sendData = await sendResponse.json();
-        console.log('API Response:', sendData);
-      } catch (error) {
-        console.error('Failed to send WhatsApp message:', error);
-        return res.status(500).json({ success: false, message: 'Failed to send WhatsApp message' });
-      }
-      return res.json({ success: true, message: 'WhatsApp message sent successfully', ticket: req.body });
-    }
-  } catch (error) {
-    console.error('Error processing webhook:', error);
-    return res.status(500).json({ success: false, message: 'Error in webhook processing' });
   }
 });
 
