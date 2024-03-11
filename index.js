@@ -19,7 +19,7 @@ app.post('/webhook', async (req, res) => {
     console.log('REQ label: ', label_id);
 
     // Check if the ticket is labelled 'tenantWaitingList'
-    if (label_id !== '1662505' || label_id !== '1715942') {
+    if (label_id !== '1662505' && label_id !== '1715942') {
       console.log('Ticket not labelled as tenantWaitingList or incomingHomeownerApplication. Skipping script.');
       return res.json({ success: true, message: 'Ticket not labelled as tenantWaitingList. No action required.' });
     }
