@@ -38,6 +38,7 @@ app.post('/webhook', async (req, res) => {
     try {
       const ticketData = await sendWhatsAppMessage(ticket_id);
       const incidentDate = new Date().toISOString();
+      console.log('Ticket data:', ticketData);
 
       let sendMessageOptions;
 
