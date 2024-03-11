@@ -58,7 +58,7 @@ app.post('/webhook', async (req, res) => {
             'contactNumber': ticketData.contactNumber,
             'preferredArea': ticketData.preferredArea,
             'preferredAreaAdditional': ticketData.preferredAreaAdditional,
-            'preferredMoveIn': ticketData.preferredMoveIn,
+            'preferredOccupationDate': ticketData.preferredMoveIn,
             'date': incidentDate,
           }),
         }),
@@ -196,6 +196,7 @@ async function sendWhatsAppMessage(ticketId) {
       surname: ticket_info['surname'],
       contactNumber: ticket_info['contactNumber'],
       preferredArea: ticket_info['preferredArea'],
+      preferredAreaAdditional: ticket_info['preferredAreaAdditional'],
       preferredMoveIn: ticket_info['preferredMoveIn'],
     };
   } catch (error) {
