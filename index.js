@@ -56,6 +56,7 @@ app.post('/webhook', async (req, res) => {
             'surname': ticketData.surname,
             'contactNumber': ticketData.contactNumber,
             'preferredArea': ticketData.preferredArea,
+            'preferredAreaAdditional': ticketData.preferredAreaAdditional,
             'preferredMoveIn': ticketData.preferredMoveIn,
             'date': incidentDate,
           }),
